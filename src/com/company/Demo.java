@@ -5,6 +5,7 @@ import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -16,10 +17,16 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-public class Main1 {
+public class Demo {
     public static void main(String[] args) throws Exception {
+
+//                select * from user where id = 123
+//                delete from user where id = 123
+//                insert into user (name, age, sex) values("xiaoming", "20", "nan")
+//                update user set name = "xiaoming", age = "20", sex = "nan" where id = 123
 
         List<User> userList = Arrays.asList(
                 new User(1,"张三", 18, "男", new BigDecimal("111"), MyDateUtil.localDateTimeConvertDate(LocalDateTime.now().minusDays(1))),
@@ -104,10 +111,11 @@ public class Main1 {
         // 获取 总数，和，最小，平均，最大     summarizingInt()  summarizingDouble()  summarizingLong()
         IntSummaryStatistics summarizing = userList.stream().collect(Collectors.summarizingInt(User::getAge));
 
-
+        // 空格拼接name
+        String nameJoining = userList.stream().map(User::getName).collect(Collectors.joining(" "));
 
         // 检查是否匹配所有元素
-        Boolean allMatch = userList.stream().allMatch(a -> a.getAge() > 10);
+        Boolean allMatch = userList.stream().allMatch(a -> a.getAge() > 17);
 
         // 检查是否有匹配至少一个元素
         Boolean anyMatch = userList.stream().anyMatch(a -> a.getAge() < 20);
@@ -176,21 +184,16 @@ public class Main1 {
         );
         // 排序 Comparator.nullsFirst(Integer::compareTo),用于处理要比较的一个或两个字段为空的情况.
         List<User> resUserList1 = userList1.stream().sorted(Comparator.comparing(User::getId, Comparator.nullsFirst(Integer::compareTo)).reversed()).collect(Collectors.toList());
-        resUserList1.stream().forEach(System.out::println);
 
-        System.out.println("********************");
-
+        // 年龄大于等于20
         List<User> collect = userList1.stream().filter(a -> a.getAge() >= 20).collect(Collectors.toList());
-        collect.stream().forEach(System.out::println);
-        User user = collect.stream().max(Comparator.comparing(User::getAge)).get();
-        System.out.println(user);
 
-        System.out.println("********************");
+        // 最大年龄的信息
+        User user = collect.stream().max(Comparator.comparing(User::getAge)).get();
+
 
         // BigDecimal  lambda求和   BigDecimal.ZERO 从零开始
         BigDecimal totalAmount = userList.stream().map(User::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-
 
 //        BigDecimal
 //        加法：add
@@ -304,28 +307,18 @@ public class Main1 {
 
 
 
-        byte[] decode = Base64.decode("suddenly.com");
-        System.out.println(decode);
-
-
 
 //        正则
-//        Pattern类表示的是某种匹配模式。一个Pattern对象和一个正则表达式相关联，而不表示具体的匹配。
+////        Pattern类表示的是某种匹配模式。一个Pattern对象和一个正则表达式相关联，而不表示具体的匹配。
 //        Pattern pattern = Pattern.compile("[a-z]\\d{3}.*");
-//        Matcher类表示的是具体的匹配。一个Matcher对象和一个具体的字符串相关联，表示在指定模式下的这个字符串的匹配。
+////        Matcher类表示的是具体的匹配。一个Matcher对象和一个具体的字符串相关联，表示在指定模式下的这个字符串的匹配。
 //        Matcher matcher = pattern.matcher("hello123world");
-//        具体的匹配信息都在Matcher对象中，所以多个Matcher对象可以共享一个Pattern对象。
-//        查看给定的字符串是否完全匹配指定模式：
+////        具体的匹配信息都在Matcher对象中，所以多个Matcher对象可以共享一个Pattern对象。
+////        查看给定的字符串是否完全匹配指定模式：
 //        System.out.println(matcher.matches()); // true
-//        下面的代码完全等价，这是一个简便方法
+////        下面的代码完全等价，这是一个简便方法
 //        System.out.println(Pattern.matches("[a-z]+\\d{3}.*", "hello123world")); // true
 
-        System.out.println("******");
-        Pattern pattern = Pattern.compile("[a-z]+\\d{3}.*");
-        Matcher matcher = pattern.matcher("hello123world");
-        System.out.println(matcher.matches());
-
-        System.out.println(Pattern.matches("[a-z]+\\d{3}.*", "hello123world"));
 
 
 
@@ -333,11 +326,33 @@ public class Main1 {
 
 
 
+        Map<String, List<String>> testMap = new HashMap<>();
+        testMap.put("aaa", Arrays.asList("a1", "a2", "a3"));
+        testMap.put("bbb", Arrays.asList("b1", "b2", "b3"));
+        testMap.put("ccc", Arrays.asList("c1", "c2", "c3"));
+
+        testMap.keySet().stream().forEach(System.out::println);
+        testMap.entrySet().stream().forEach(System.out::println);
+
+        testMap.entrySet().stream().forEach(value -> {
+            String key = value.getKey();
+            List<String> value1 = value.getValue();
+        });
 
 
+        getPageInfo(Arrays.asList("aaa", "bbb", "ccc"), 1, 2);
+
+        // 去除空格
+        String str111 = " abc ";
+        String str222 = " a b c ";
+        str111.trim();
+        str222.replaceAll(" ", "");
 
 
-
+        // Arrays.asList  放入  ArrayList  才可以添加
+        List strList = new ArrayList(Arrays.asList("a", "b"));
+        strList.add("c");
+        System.out.println(strList);
 
 
 
@@ -349,6 +364,92 @@ public class Main1 {
 
 
 
+
+
+
+
+
+
+
+
+
+//    List<ExBlackInfo> exBlackInfos = JSONArray.parseArray(jsonObject.getString("data"), ExBlackInfo.class);
+
+//        System.out.println(stringFilter("按多事实#￥上测试阿萨德%#$$测试/,.安防"));
+    //过滤特殊字符
+    public static String stringFilter(String str) throws PatternSyntaxException {
+        // 只允许字母和数字 //
+        // String regEx ="[^a-zA-Z0-9]";
+        // 清除掉所有特殊字符
+        String regEx="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。 ，、？]";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(str);
+        return m.replaceAll(" ").trim();
+    }
+
+
+    public static Date getResDate(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);   //控制时
+        calendar.set(Calendar.MINUTE, 0);        //控制分
+        calendar.set(Calendar.SECOND, 0);        //控制秒
+//        calendar.add(calendar.DATE,1);   //增加一天
+        Date resDate = calendar.getTime();
+        return resDate;
+    }
+
+    public static Date getDate(Date date) {
+        Date resDate = null;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String s = simpleDateFormat.format(date);
+        try {
+            resDate = simpleDateFormat.parse(s);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return resDate;
+    }
+
+
+
+    public static <T> void getPageInfo(List<T> dateList, Integer pageNo, Integer pageSize){
+        int fromIndex = pageSize * (pageNo - 1);
+        int toIndex = pageSize * pageNo;
+        if (pageNo == 0) {
+            fromIndex = pageSize * pageNo;
+            toIndex = pageSize * (pageNo + 1);
+        }
+        if (toIndex > dateList.size()) {
+            toIndex = dateList.size();
+        }
+        if (fromIndex > toIndex) {
+            fromIndex = toIndex;
+        }
+        //获取list的分页集合
+        List<T> result = dateList.subList(fromIndex, toIndex);
+        System.out.println(result);
+    }
+
+
+//    protected <T extends ResBaseDto> void setPageInfo(org.springframework.data.domain.Page<T> page,
+//                                                      PageResDto<T> pageResDto,
+//                                                      Integer pageNo,
+//                                                      Integer pageSize) {
+//        long total = page.getTotalElements();
+//        pageResDto.setDateList(page.getContent());
+//        pageResDto.setTotalCount(total);
+//        pageResDto.setPageNo(pageNo);
+//        pageResDto.setPageSize(pageSize);
+//        if (pageSize != 0) {
+//            pageResDto.setPageCount(Math.toIntExact(
+//                    total % pageSize == 0
+//                            ? (total / pageSize)
+//                            : (total / pageSize) + 1));
+//        } else {
+//            pageResDto.setPageCount(0);
+//        }
+//    }
 
 
 }
