@@ -1,10 +1,14 @@
 package com.company;
 
 import com.company.utils.MyDateUtil;
+import com.sun.deploy.net.URLEncoder;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -166,6 +170,17 @@ public class Demo {
         Map<String, Long> countingMap = userList.stream().collect(Collectors.groupingBy(User::getSex, Collectors.counting()));
 
 
+        // Date 类型 最好 把时间戳存到单独的一个 Long类型的字段   然后根据  时间戳字段排序
+        // .stream().sorted(Comparator.comparingLong(User::getTimestamp).reversed()).collect(Collectors.toList());
+
+        // 日期倒序
+        List<User> collect2 = userList.stream().sorted((x, y) -> {
+            Long.compare(x.getDate().getTime(), y.getDate().getTime());
+            return 0;
+        }).collect(Collectors.toList());
+
+        // 日期倒序
+        List<User> collect1 = userList.stream().sorted(Comparator.comparing(User::getDate).reversed()).collect(Collectors.toList());
         // 正序
         List<User> sortList = userList.stream().sorted(Comparator.comparing(User::getAge)).collect(Collectors.toList());
         // 倒序
@@ -193,7 +208,7 @@ public class Demo {
 
 
         // BigDecimal  lambda求和   BigDecimal.ZERO 从零开始
-        BigDecimal totalAmount = userList.stream().map(User::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalAmount = userList.stream().filter(a -> a.getAmount() != null).map(User::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
 //        BigDecimal
 //        加法：add
@@ -289,9 +304,6 @@ public class Demo {
         Date time1 = cal.getTime();
 
 
-
-
-
 //        JDK8新特性里提供了3个时间类：LocalDate、LocalTime、LocalDateTime
         System.out.println("*****************");
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -306,8 +318,6 @@ public class Demo {
         System.out.println(localDateTime.plusMonths(1).with(TemporalAdjusters.lastDayOfMonth()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
 
-
-
 //        正则
 ////        Pattern类表示的是某种匹配模式。一个Pattern对象和一个正则表达式相关联，而不表示具体的匹配。
 //        Pattern pattern = Pattern.compile("[a-z]\\d{3}.*");
@@ -320,12 +330,6 @@ public class Demo {
 //        System.out.println(Pattern.matches("[a-z]+\\d{3}.*", "hello123world")); // true
 
 
-
-
-
-
-
-
         Map<String, List<String>> testMap = new HashMap<>();
         testMap.put("aaa", Arrays.asList("a1", "a2", "a3"));
         testMap.put("bbb", Arrays.asList("b1", "b2", "b3"));
@@ -333,14 +337,12 @@ public class Demo {
 
         testMap.keySet().stream().forEach(System.out::println);
         testMap.entrySet().stream().forEach(System.out::println);
-
+        // map遍历value
         testMap.entrySet().stream().forEach(value -> {
             String key = value.getKey();
             List<String> value1 = value.getValue();
         });
 
-
-        getPageInfo(Arrays.asList("aaa", "bbb", "ccc"), 1, 2);
 
         // 去除空格
         String str111 = " abc ";
@@ -349,12 +351,24 @@ public class Demo {
         str222.replaceAll(" ", "");
 
 
-        // Arrays.asList  放入  ArrayList  才可以添加
+        // Arrays.asList  放入  ArrayList  才可以使用 .add
         List strList = new ArrayList(Arrays.asList("a", "b"));
         strList.add("c");
         System.out.println(strList);
 
 
+        // URLEncoder 编码转换
+        String  urlEncoderStr = java.net.URLEncoder.encode("中国" ,"utf-8");
+        String  stringStr = java.net.URLDecoder.decode(urlEncoderStr,"utf-8");
+
+
+        // 字符串格式化拼接     %s 字符串   %b 布尔   %d 整数   %f 浮点数   %tx 日期与时间类型
+        String format = String.format("hello,%s%s%s", "word", ",", "测试");
+        System.out.println(format);
+
+
+        // json 字段映射
+        // List<ExBlackInfo> exBlackInfos = JSONArray.parseArray(jsonObject.getString("data"), ExBlackInfo.class);
 
     }
 
@@ -369,87 +383,16 @@ public class Demo {
 
 
 
-
-
-
-
-//    List<ExBlackInfo> exBlackInfos = JSONArray.parseArray(jsonObject.getString("data"), ExBlackInfo.class);
-
-//        System.out.println(stringFilter("按多事实#￥上测试阿萨德%#$$测试/,.安防"));
-    //过滤特殊字符
+    /**
+     * 过滤特殊字符去除空格
+     *
+     * @param str
+     */
     public static String stringFilter(String str) throws PatternSyntaxException {
-        // 只允许字母和数字 //
-        // String regEx ="[^a-zA-Z0-9]";
-        // 清除掉所有特殊字符
         String regEx="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。 ，、？]";
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(str);
         return m.replaceAll(" ").trim();
     }
-
-
-    public static Date getResDate(Date date) {
-        Calendar calendar = new GregorianCalendar();
-        calendar.setTime(date);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);   //控制时
-        calendar.set(Calendar.MINUTE, 0);        //控制分
-        calendar.set(Calendar.SECOND, 0);        //控制秒
-//        calendar.add(calendar.DATE,1);   //增加一天
-        Date resDate = calendar.getTime();
-        return resDate;
-    }
-
-    public static Date getDate(Date date) {
-        Date resDate = null;
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String s = simpleDateFormat.format(date);
-        try {
-            resDate = simpleDateFormat.parse(s);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return resDate;
-    }
-
-
-
-    public static <T> void getPageInfo(List<T> dateList, Integer pageNo, Integer pageSize){
-        int fromIndex = pageSize * (pageNo - 1);
-        int toIndex = pageSize * pageNo;
-        if (pageNo == 0) {
-            fromIndex = pageSize * pageNo;
-            toIndex = pageSize * (pageNo + 1);
-        }
-        if (toIndex > dateList.size()) {
-            toIndex = dateList.size();
-        }
-        if (fromIndex > toIndex) {
-            fromIndex = toIndex;
-        }
-        //获取list的分页集合
-        List<T> result = dateList.subList(fromIndex, toIndex);
-        System.out.println(result);
-    }
-
-
-//    protected <T extends ResBaseDto> void setPageInfo(org.springframework.data.domain.Page<T> page,
-//                                                      PageResDto<T> pageResDto,
-//                                                      Integer pageNo,
-//                                                      Integer pageSize) {
-//        long total = page.getTotalElements();
-//        pageResDto.setDateList(page.getContent());
-//        pageResDto.setTotalCount(total);
-//        pageResDto.setPageNo(pageNo);
-//        pageResDto.setPageSize(pageSize);
-//        if (pageSize != 0) {
-//            pageResDto.setPageCount(Math.toIntExact(
-//                    total % pageSize == 0
-//                            ? (total / pageSize)
-//                            : (total / pageSize) + 1));
-//        } else {
-//            pageResDto.setPageCount(0);
-//        }
-//    }
-
 
 }

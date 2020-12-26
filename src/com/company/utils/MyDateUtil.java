@@ -1,5 +1,7 @@
 package com.company.utils;
 
+import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -7,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Locale;
 
 public class MyDateUtil {
 
@@ -17,12 +20,49 @@ public class MyDateUtil {
     // long time = new Date().getTime();
     // Date date = new Date(time);
 
+    public static final String FORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String FORMAT_T = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String FORMAT_Z = "EEE MMM dd HH:mm:ss Z yyyy";
+
+    /**
+     *  处理时间格式 2019-11-28T06:52:09.724+0000 为 yyyy-MM-dd HH:mm:ss 格式字符串日期
+     *
+     * @param oldDate  "2020-12-26T05:34:47.000+0000"
+     * @return String 2020-12-26 05:34:47
+     * */
+    public static String dealDateFormat(String oldDate) {
+        Date date1 = null;
+        DateFormat df2 = null;
+        try {
+            DateFormat df = new SimpleDateFormat(FORMAT_T);
+            Date date = df.parse(oldDate);
+            SimpleDateFormat df1 = new SimpleDateFormat (FORMAT_Z, Locale.UK);
+            date1 = df1.parse(date.toString());
+            df2 = new SimpleDateFormat(FORMAT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return df2.format(date1);
+    }
+    /**
+     *  处理String格式的时间类型  为 Timestamp mysql识别的日期格式
+     *
+     * @param object 2020-12-26T05:34:47.000+0000
+     * @return Timestamp 2020-12-26 05:34:47.0
+     * */
+    public static Timestamp returnTimestampForTemp(Object object){
+        String oString = dealDateFormat(object.toString());
+        Timestamp timestamp = Timestamp.valueOf(oString);
+        return  timestamp;
+    }
+
+
     /**
      * 描述：字符串转换为Date
      * @param dateStr
      **/
     public static Date stringConvertDate(String dateStr) {
-        return MyDateUtil.stringConvertDate(dateStr, "yyyy-MM-dd HH:mm:ss");
+        return MyDateUtil.stringConvertDate(dateStr, FORMAT);
     }
 
     /**
@@ -44,7 +84,7 @@ public class MyDateUtil {
      * @param dateStr
      **/
     public static Long stringConvertTimestamp(String dateStr){
-        return MyDateUtil.stringConvertTimestamp(dateStr, "yyyy-MM-dd HH:mm:ss");
+        return MyDateUtil.stringConvertTimestamp(dateStr, FORMAT);
     }
 
     /**
@@ -66,7 +106,7 @@ public class MyDateUtil {
      * @param date
      **/
     public static String dateConvertString(Date date) {
-        return MyDateUtil.dateConvertString(date, "yyyy-MM-dd HH:mm:ss");
+        return MyDateUtil.dateConvertString(date, FORMAT);
     }
 
     /**
@@ -83,7 +123,7 @@ public class MyDateUtil {
      * @param timestamp
      **/
     public static String timestampConvertString(Long timestamp){
-        return MyDateUtil.timestampConvertString(timestamp, "yyyy-MM-dd HH:mm:ss");
+        return MyDateUtil.timestampConvertString(timestamp, FORMAT);
     }
 
     /**
@@ -102,7 +142,7 @@ public class MyDateUtil {
      * @param endTimeStr
      **/
     public static String getTimeDifference(String startTimeStr, String endTimeStr) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat format = new SimpleDateFormat(FORMAT);
         Date startTime = null;
         Date endTime  = null;
         try {
