@@ -1,6 +1,6 @@
-package com.company;
+package com.company.dto;
 
-public class UserInfo {
+public class UserInfoDTO {
 
     private String name;
 
@@ -10,10 +10,10 @@ public class UserInfo {
 
     private Long a;
 
-    public UserInfo() {
+    public UserInfoDTO() {
     }
 
-    public UserInfo(String name, String sex, Integer age, Long a) {
+    public UserInfoDTO(String name, String sex, Integer age, Long a) {
         this.name = name;
         this.sex = sex;
         this.age = age;

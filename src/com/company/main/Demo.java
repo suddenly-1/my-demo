@@ -1,20 +1,11 @@
-package com.company;
+package com.company.main;
 
+import com.company.dto.UserInfoDTO;
+import com.company.entity.User;
 import com.company.utils.MyDateUtil;
-import com.sun.deploy.net.URLEncoder;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 
-import java.io.*;
 import java.math.BigDecimal;
-import java.net.URLDecoder;
-import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
@@ -54,12 +45,12 @@ public class Demo {
         // 转List
         List<String> nameList = userList.stream().map(User::getName).collect(Collectors.toList());
 
-        List<UserInfo> userInfoList = userList.stream().map(user -> {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setName(user.getName());
-            userInfo.setAge(user.getAge());
-            userInfo.setSex(user.getSex());
-            return userInfo;
+        List<UserInfoDTO> userInfoDTOList = userList.stream().map(user -> {
+            UserInfoDTO userInfoDTO = new UserInfoDTO();
+            userInfoDTO.setName(user.getName());
+            userInfoDTO.setAge(user.getAge());
+            userInfoDTO.setSex(user.getSex());
+            return userInfoDTO;
         }).collect(Collectors.toList());
 
 
@@ -373,10 +364,19 @@ public class Demo {
     }
 
 
-
-
-
-
+    /**
+     * 增加小时
+     *
+     * @param date
+     * @param i
+     * @return
+     */
+    public static Date addHourOfDate(Date date, int i) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.HOUR_OF_DAY, i);
+        return c.getTime();
+    }
 
 
 
@@ -387,6 +387,7 @@ public class Demo {
      * 过滤特殊字符去除空格
      *
      * @param str
+     * @return
      */
     public static String stringFilter(String str) throws PatternSyntaxException {
         String regEx="[`~!@#$%^&*()+=|{}':;',\\[\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。 ，、？]";
