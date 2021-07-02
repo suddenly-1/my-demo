@@ -8,7 +8,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MyDateUtil {
@@ -247,6 +250,26 @@ public class MyDateUtil {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
+
+    /**
+     * 两个日期内所有日期
+     *
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return
+     */
+    public static List<String> findDates(Date startDate, Date endDate) {
+        List<String> dates = new ArrayList();
+        Calendar startTime = Calendar.getInstance();
+        startTime.setTime(startDate);
+        // 结束日期是否在开始日期之后
+        while (endDate.after(startTime.getTime())) {
+            // 根据日历的规则，为开始日期按月增加
+            startTime.add(Calendar.DAY_OF_MONTH, 1);
+            dates.add(new SimpleDateFormat("yyyy-MM-dd").format(startTime.getTime()));
+        }
+        return dates;
+    }
 
 
 }

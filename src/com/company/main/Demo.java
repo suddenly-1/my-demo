@@ -5,11 +5,15 @@ import com.company.entity.User;
 import com.company.utils.MyDateUtil;
 
 import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -35,6 +39,7 @@ public class Demo {
         Map<String, User> map = userList.stream().collect(Collectors.toMap(User::getName, Function.identity()));
         User mapOrDefault = map.getOrDefault("小黑", null);
 
+        Map<String, User> map1 = userList.stream().collect(Collectors.toMap(User::getSex, a -> a, (k1, k2) -> k1));
 
         // 过滤
         List<User> filterList1 = userList.stream().filter(a -> a.getName().startsWith("小")).collect(Collectors.toList());
@@ -136,6 +141,8 @@ public class Demo {
         // 去重
         List<String> distinctList = userList.stream().map(User::getSex).distinct().collect(Collectors.toList());
 
+        // 对象去重
+        List<User> resUserList = userList.parallelStream().filter(distinctByKey(User::getSex)).collect(Collectors.toList());
 
         // 连接       以"，"逗号拼接name
         String joiningName = userList.stream().map(User::getName).collect(Collectors.joining("，"));
@@ -343,13 +350,13 @@ public class Demo {
 
 
         // Arrays.asList  放入  ArrayList  才可以使用 .add
-        List strList = new ArrayList(Arrays.asList("a", "b"));
+        List<String> strList = new ArrayList(Arrays.asList("a", "b"));
         strList.add("c");
         System.out.println(strList);
 
 
         // URLEncoder 编码转换
-        String  urlEncoderStr = java.net.URLEncoder.encode("中国" ,"utf-8");
+        String  urlEncoderStr = java.net.URLEncoder.encode("测试" ,"utf-8");
         String  stringStr = java.net.URLDecoder.decode(urlEncoderStr,"utf-8");
 
 
@@ -360,6 +367,45 @@ public class Demo {
 
         // json 字段映射
         // List<ExBlackInfo> exBlackInfos = JSONArray.parseArray(jsonObject.getString("data"), ExBlackInfo.class);
+
+
+
+
+
+//        String path = "/api/v1/contract/open";
+//        boolean matches = path.matches("(.*)/api/v1/contract(.*)");
+//        System.out.println(matches);
+//
+//        String Str = "www.runoob.com";
+//        System.out.println("返回值：" + Str.matches("(.*)runoob(.*)"));
+//        System.out.println("返回值：" + Str.matches("(.*)google(.*)"));
+//        System.out.println("返回值：" + Str.matches("www(.*)"));
+
+
+        // 不要在foreach里用remove操作，remove元素使用Iterator迭代的方式，如果并发操作需要对Iterator对象加锁
+        ArrayList<String> myList = new ArrayList<>();
+        myList.add("1");
+        myList.add("2");
+
+//        Iterator<String> iterator = myList.iterator();
+//        while (iterator.hasNext()) {
+//            String next = iterator.next();
+//            if ("2".equals(next)) {
+//                iterator.remove();
+//            }
+//        }
+//        for (String my : myList) {
+//            if ("2".equals(my)) {
+//                myList.remove(my);
+//            }
+//        }
+
+
+        Map<String, String> map2 = new HashMap<>();
+        map2.put("aaa", "123");
+//        stringStringHashMap.put("examId", "123");
+        String value = (String) map2.get("examId");
+        System.out.println(value);
 
     }
 
@@ -394,6 +440,17 @@ public class Demo {
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(str);
         return m.replaceAll(" ").trim();
+    }
+
+    /**
+     * 根据key去重对象
+     *
+     * @param keyExtractor
+     * @return
+     */
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+        return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
 }
