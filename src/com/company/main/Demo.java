@@ -407,6 +407,9 @@ public class Demo {
         String value = (String) map2.get("examId");
         System.out.println(value);
 
+        // 长度小于6,用0补全
+        String s = String.format("%06d", 12845);
+
     }
 
 
@@ -453,6 +456,5 @@ public class Demo {
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 
-//    test1
 
 }
