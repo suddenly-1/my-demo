@@ -4,9 +4,8 @@ import com.company.dto.UserInfoDTO;
 import com.company.entity.User;
 import com.company.utils.MyDateUtil;
 
+import java.io.*;
 import java.math.BigDecimal;
-import java.security.SecureRandom;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -18,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class Demo {
     public static void main(String[] args) throws Exception {
@@ -333,10 +334,10 @@ public class Demo {
         testMap.put("bbb", Arrays.asList("b1", "b2", "b3"));
         testMap.put("ccc", Arrays.asList("c1", "c2", "c3"));
 
-        testMap.keySet().stream().forEach(System.out::println);
-        testMap.entrySet().stream().forEach(System.out::println);
+        testMap.keySet().forEach(System.out::println);
+        testMap.entrySet().forEach(System.out::println);
         // map遍历value
-        testMap.entrySet().stream().forEach(value -> {
+        testMap.entrySet().forEach(value -> {
             String key = value.getKey();
             List<String> value1 = value.getValue();
         });
@@ -410,6 +411,94 @@ public class Demo {
         // 长度小于6,用0补全
         String s = String.format("%06d", 12845);
 
+
+//        Stream.of("one", "two", "three", "four")
+//                .filter(e -> e.length() > 3)
+//                .peek(e -> System.out.println("Filtered value: " + e))
+//                .map(String::toUpperCase)
+//                .peek(e -> System.out.println("Mapped value: " + e))
+//                .collect(Collectors.toList());
+
+
+        List<String> testList=new ArrayList<>(Arrays.asList("1", "2", "3", "10"));
+        List<String> oneList=new ArrayList<>(Arrays.asList("1", "2", "3", "10", "20", "30"));
+        // 交集
+        testList.retainAll(oneList);
+        System.out.println(testList); //[1,2,10]
+        // 差集
+        testList.removeAll(oneList);
+        System.out.println(testList); //[3]
+        // 并集
+        testList.removeAll(oneList);
+        testList.addAll(oneList);
+        System.out.println(testList); //[3,1,2,10,20,30]
+
+
+        List<String> aaa = new ArrayList<>(Arrays.asList("a", "a", "a"));
+        List<String> bbb = new ArrayList<>(Arrays.asList("b", "b", "b"));
+        // subList() 左闭右开，取值
+        // list的clear()方法会把sublist截取的集合部分从list中移除掉
+        aaa.subList(0, bbb.size()).clear();
+        System.out.println(aaa);
+
+
+        System.out.println(-1 >> 1);
+
+        String aaaaaa = "ABCDEFG";
+        System.out.println(aaaaaa.substring(3));
+        System.out.println(aaaaaa.substring(3,5));
+
+        System.out.println((20+2*9)/4);
+        System.out.println(9%7);
+        System.out.println((20+2*9)/4%7);
+        System.out.println(11%3);
+
+        int[][] myArray = {{23},{46,20},{98,81,64},{54,43,55,76}};
+        int array[] = new int[10];
+
+
+//        InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+//        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//        String str = bufferedReader.readLine();
+//        System.out.println(str);
+//
+//        System.out.println(str.charAt(1));
+//        System.out.println(str.charAt(1) >= '0');
+
+//        String str[] = {"Green", "Red", "Yellow"};
+//        String s1 = str[2 % str.length];
+//        System.out.println(s1);
+
+
+
+    }
+
+    static String ZIP_FILE = "D:\\test\\aaa.zip";
+    static String JPG_FILE = "D:\\test\\浦发银行信息科技部测评个人报告样例.docx";
+    static String FILE_NAME = "test.docx";
+
+    /**
+     * 生成压缩文件
+     *
+     */
+    public static void zipFileBuffer() {
+        File zipFile = new File(ZIP_FILE);
+        try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(zipFile));
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(zipOut)) {
+
+            try (BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream(JPG_FILE))) {
+                zipOut.putNextEntry(new ZipEntry(FILE_NAME));
+                int temp = 0;
+                while
+                ((temp = bufferedInputStream.read()) != -1) {
+                    bufferedOutputStream.write(temp);
+                }
+            }
+
+        } catch
+        (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -455,6 +544,33 @@ public class Demo {
         Map<Object,Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
+
+//    // 求两个对象List的交集
+//    private List<People> sameList(List<People> oldArrayList, List<People> newArrayList) {
+//        List<People> resultList = newArrayList.stream()
+//                .filter(item -> oldArrayList.stream().map(e -> e.getCode())
+//                        .collect(Collectors.toList()).contains(item.getCode()))
+//                .collect(Collectors.toList());
+//        return resultList;
+//    }
+//
+//    // 求两个对象List的差集
+//    private List<People> diffList(List<People> firstArrayList, List<People> secondArrayList) {
+//        List<People> resultList = firstArrayList.stream()
+//                .filter(item -> !secondArrayList.stream().map(e -> e.getCode()).collect(Collectors.toList()).contains(item.getCode()))
+//                .collect(Collectors.toList());
+//        return resultList;
+//    }
+//
+//    // 求两个对象LIST的差集(多属性比对)
+//    private List<People> diffList(List<People> firstArrayList, List<People> secondArrayList) {
+//        List<People> resultList = firstArrayList.stream()
+//                .filter(item -> !secondArrayList.stream().map(e -> e.getCode() + "&" + e.getName())
+//                        .collect(Collectors.toList()).contains(item.getCode() + "&" + item.getName())
+//                )
+//                .collect(Collectors.toList());
+//        return resultList;
+//    }
 
 
 }
